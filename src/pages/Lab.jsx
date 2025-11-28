@@ -105,18 +105,17 @@ function Lab() {
         completedBy: 'Lab Technician'
       });
       
-      // Update appointment - send to pharmacy or complete
+      // Update appointment - send back to doctor for review
       const appointment = appointments.find(a => a.id === selectedOrder.appointmentId);
       if (appointment) {
-        // Check if there are pending prescriptions
         updateAppointment(selectedOrder.appointmentId, {
-          status: APPOINTMENT_STATUS.PHARMACY,
+          status: APPOINTMENT_STATUS.LAB_RESULTS_READY,
           labCompletedAt: new Date().toISOString()
         });
       }
       
       const patient = getPatient(selectedOrder.patientId);
-      success(`Lab results saved for ${patient?.name}`, 'Patient notified');
+      success(`Lab results saved for ${patient?.name}`, 'Sent to Doctor for Review');
       
       setSelectedOrder(null);
       setResults({});

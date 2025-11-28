@@ -35,6 +35,22 @@ const patientSchema = {
   address: {
     label: 'Address',
     maxLength: 200
+  },
+  nextOfKin: {
+    label: 'Next of Kin'
+  },
+  nextOfKinContact: {
+    label: 'Next of Kin Contact',
+    phone: true
+  },
+  bloodType: {
+    label: 'Blood Type'
+  },
+  allergies: {
+    label: 'Allergies'
+  },
+  medicalHistory: {
+    label: 'Medical History'
   }
 };
 
@@ -54,7 +70,12 @@ function PatientForm({ patient, onSubmit, onCancel }) {
     gender: patient?.gender || '',
     contact: patient?.contact || '',
     email: patient?.email || '',
-    address: patient?.address || ''
+    address: patient?.address || '',
+    nextOfKin: patient?.nextOfKin || '',
+    nextOfKinContact: patient?.nextOfKinContact || '',
+    bloodType: patient?.bloodType || '',
+    allergies: patient?.allergies || '',
+    medicalHistory: patient?.medicalHistory || ''
   });
   
   const onFormSubmit = async (data) => {
@@ -159,13 +180,97 @@ function PatientForm({ patient, onSubmit, onCancel }) {
         <textarea
           id="address"
           {...getFieldProps('address')}
-          className={`input min-h-[80px] ${touched.address && errors.address ? 'input-error' : ''}`}
+          className={`input min-h-[60px] ${touched.address && errors.address ? 'input-error' : ''}`}
           placeholder="Enter patient's address"
-          rows={3}
+          rows={2}
         />
         {touched.address && errors.address && (
           <p className="mt-1.5 text-sm text-red-600">{errors.address}</p>
         )}
+      </div>
+      
+      {/* Next of Kin Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="input-group">
+          <label htmlFor="nextOfKin" className="label">Next of Kin</label>
+          <input
+            id="nextOfKin"
+            type="text"
+            {...getFieldProps('nextOfKin')}
+            className="input"
+            placeholder="Name of emergency contact"
+          />
+        </div>
+        
+        <div className="input-group">
+          <label htmlFor="nextOfKinContact" className="label">Next of Kin Contact</label>
+          <input
+            id="nextOfKinContact"
+            type="tel"
+            {...getFieldProps('nextOfKinContact')}
+            className={`input ${touched.nextOfKinContact && errors.nextOfKinContact ? 'input-error' : ''}`}
+            placeholder="e.g., +1234567890"
+          />
+          {touched.nextOfKinContact && errors.nextOfKinContact && (
+            <p className="mt-1.5 text-sm text-red-600">{errors.nextOfKinContact}</p>
+          )}
+        </div>
+      </div>
+      
+      {/* Medical Info Section */}
+      <div className="pt-4 border-t border-slate-200">
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Medical Information</h3>
+        
+        {/* Blood Type */}
+        <div className="input-group mb-4">
+          <label htmlFor="bloodType" className="label">Blood Type</label>
+          <select
+            id="bloodType"
+            {...getFieldProps('bloodType')}
+            className="select"
+          >
+            <option value="">Select blood type</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+            <option value="Unknown">Unknown</option>
+          </select>
+        </div>
+        
+        {/* Allergies */}
+        <div className="input-group mb-4">
+          <label htmlFor="allergies" className="label">
+            Known Allergies
+            <span className="text-xs text-slate-400 ml-2">(drugs, food, environmental)</span>
+          </label>
+          <textarea
+            id="allergies"
+            {...getFieldProps('allergies')}
+            className="input min-h-[60px]"
+            placeholder="e.g., Penicillin, Peanuts, Latex..."
+            rows={2}
+          />
+        </div>
+        
+        {/* Medical History */}
+        <div className="input-group">
+          <label htmlFor="medicalHistory" className="label">
+            Medical History
+            <span className="text-xs text-slate-400 ml-2">(chronic conditions, past surgeries)</span>
+          </label>
+          <textarea
+            id="medicalHistory"
+            {...getFieldProps('medicalHistory')}
+            className="input min-h-[80px]"
+            placeholder="e.g., Diabetes Type 2, Hypertension, Appendectomy (2015)..."
+            rows={3}
+          />
+        </div>
       </div>
       
       {/* Actions */}

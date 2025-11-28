@@ -23,6 +23,8 @@ function PatientDetail() {
   const { data: appointments } = useLocalDB(STORAGE_KEYS.APPOINTMENTS);
   const { data: consultations } = useLocalDB(STORAGE_KEYS.CONSULTATIONS);
   const { data: triageRecords } = useLocalDB(STORAGE_KEYS.TRIAGE);
+  const { data: prescriptions } = useLocalDB(STORAGE_KEYS.PRESCRIPTIONS);
+  const { data: labOrders } = useLocalDB(STORAGE_KEYS.LAB_ORDERS);
   const { success, error: showError } = useNotifications();
   
   const [isVisitModalOpen, setIsVisitModalOpen] = useState(false);
@@ -35,7 +37,7 @@ function PatientDetail() {
     return patients.find(p => p.id === id);
   }, [patients, id]);
   
-  // Get patient's appointments with consultations
+  // Get patient's appointments with full consultation data
   const patientConsultations = useMemo(() => {
     if (!patient) return [];
     
@@ -44,15 +46,19 @@ function PatientDetail() {
       .map(apt => {
         const consultation = consultations.find(c => c.appointmentId === apt.id);
         const triage = triageRecords.find(t => t.appointmentId === apt.id);
+        const prescription = prescriptions.find(rx => rx.appointmentId === apt.id);
+        const labOrder = labOrders.find(l => l.appointmentId === apt.id);
         return {
           ...apt,
           consultation,
-          triage
+          triage,
+          prescription,
+          labOrder
         };
       })
       .filter(apt => apt.consultation) // Only show appointments with consultations
       .sort((a, b) => new Date(b.datetime || b.date) - new Date(a.datetime || a.date));
-  }, [patient, appointments, consultations, triageRecords]);
+  }, [patient, appointments, consultations, triageRecords, prescriptions, labOrders]);
   
   if (!patient) {
     return (
@@ -162,8 +168,24 @@ function PatientDetail() {
                 <p className="font-medium text-slate-800">{formatAge(patient.dob)}</p>
               </div>
               <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Blood Type</p>
+                <p className="font-medium text-slate-800">{patient.bloodType || '-'}</p>
+              </div>
+              <div>
                 <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Contact</p>
                 <p className="font-medium text-slate-800">{patient.contact || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Email</p>
+                <p className="font-medium text-slate-800">{patient.email || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Next of Kin</p>
+                <p className="font-medium text-slate-800">{patient.nextOfKin || '-'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">NOK Contact</p>
+                <p className="font-medium text-slate-800">{patient.nextOfKinContact || '-'}</p>
               </div>
             </div>
             
@@ -171,6 +193,27 @@ function PatientDetail() {
               <div className="mt-4">
                 <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Address</p>
                 <p className="text-slate-700">{patient.address}</p>
+              </div>
+            )}
+            
+            {/* Allergies - Important Medical Alert */}
+            {patient.allergies && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-xs text-red-600 uppercase tracking-wide mb-1 flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  Known Allergies
+                </p>
+                <p className="text-red-800 font-medium">{patient.allergies}</p>
+              </div>
+            )}
+            
+            {/* Medical History */}
+            {patient.medicalHistory && (
+              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-xs text-amber-600 uppercase tracking-wide mb-1">Medical History</p>
+                <p className="text-slate-700">{patient.medicalHistory}</p>
               </div>
             )}
           </div>
@@ -276,24 +319,43 @@ function PatientDetail() {
                         </div>
                       )}
                       
-                      {/* Lab tests */}
-                      {apt.consultation?.labTests && apt.consultation.labTests.length > 0 && (
-                        <div>
+                      {/* Lab tests with results */}
+                      {apt.labOrder && apt.labOrder.tests.length > 0 && (
+                        <div className="mb-3">
                           <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Lab Tests</p>
-                          <div className="flex flex-wrap gap-2">
-                            {apt.consultation.labTests.map((test, idx) => (
-                              <Badge key={idx} variant="info" size="sm">
-                                {test.code}
-                              </Badge>
-                            ))}
+                          <div className="space-y-1">
+                            {apt.labOrder.tests.map((test, idx) => {
+                              const result = apt.labOrder.results?.[test.code];
+                              return (
+                                <div key={idx} className="flex items-center justify-between text-sm bg-indigo-50 px-2 py-1 rounded">
+                                  <span className="text-indigo-700">{test.code}: {test.name}</span>
+                                  {result ? (
+                                    <span className="font-medium text-green-600">{result.value}</span>
+                                  ) : (
+                                    <span className="text-slate-400">Pending</span>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
+                        </div>
+                      )}
+                      
+                      {/* Prescription status */}
+                      {apt.prescription && (
+                        <div>
+                          <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Prescription</p>
+                          <Badge variant={apt.prescription.dispensed ? 'success' : 'warning'}>
+                            {apt.prescription.medications.length} medication(s) - 
+                            {apt.prescription.dispensed ? ' Dispensed' : ' Pending'}
+                          </Badge>
                         </div>
                       )}
                     </div>
                     
                     {/* View Full Summary Button */}
                     <Link
-                      to={`/visit/${apt.id}`}
+                      to={`/visit-summary/${apt.id}`}
                       className="btn-secondary whitespace-nowrap"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">

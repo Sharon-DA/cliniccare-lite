@@ -59,15 +59,17 @@ function Consultation() {
   // Get triage data
   const getTriage = (appointmentId) => triageRecords.find(t => t.appointmentId === appointmentId);
   
-  // Patients ready for consultation (in queue or with doctor)
+  // Patients ready for consultation (in queue, with doctor, or lab results ready)
   const patientsForConsultation = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     return appointments
       .filter(apt => {
         const aptDate = apt.datetime?.split('T')[0] || apt.date;
-        // Show patients who are in queue or already with doctor
+        // Show patients who are in queue, already with doctor, or have lab results ready
         return aptDate === today && 
-          (apt.status === APPOINTMENT_STATUS.WITH_DOCTOR || apt.status === APPOINTMENT_STATUS.IN_QUEUE);
+          (apt.status === APPOINTMENT_STATUS.WITH_DOCTOR || 
+           apt.status === APPOINTMENT_STATUS.IN_QUEUE ||
+           apt.status === APPOINTMENT_STATUS.LAB_RESULTS_READY);
       })
       .filter(apt => {
         const patient = getPatient(apt.patientId);
@@ -75,14 +77,17 @@ function Consultation() {
           patient?.name?.toLowerCase().includes(searchQuery.toLowerCase());
       })
       .sort((a, b) => {
-        // WITH_DOCTOR first, then IN_QUEUE
-        if (a.status === APPOINTMENT_STATUS.WITH_DOCTOR && b.status !== APPOINTMENT_STATUS.WITH_DOCTOR) return -1;
-        if (b.status === APPOINTMENT_STATUS.WITH_DOCTOR && a.status !== APPOINTMENT_STATUS.WITH_DOCTOR) return 1;
-        return 0;
+        // LAB_RESULTS_READY first (urgent review), then WITH_DOCTOR, then IN_QUEUE
+        const priority = {
+          [APPOINTMENT_STATUS.LAB_RESULTS_READY]: 0,
+          [APPOINTMENT_STATUS.WITH_DOCTOR]: 1,
+          [APPOINTMENT_STATUS.IN_QUEUE]: 2
+        };
+        return (priority[a.status] || 3) - (priority[b.status] || 3);
       });
   }, [appointments, patients, searchQuery]);
   
-  // When selecting a patient in queue, update their status to WITH_DOCTOR
+  // When selecting a patient, update their status to WITH_DOCTOR
   const handleSelectPatient = (appointment) => {
     if (appointment.status === APPOINTMENT_STATUS.IN_QUEUE) {
       // Update to WITH_DOCTOR when starting consultation
@@ -95,6 +100,12 @@ function Consultation() {
       if (queueItem) {
         updateQueue(queueItem.id, { called: true, calledAt: new Date().toISOString() });
       }
+    } else if (appointment.status === APPOINTMENT_STATUS.LAB_RESULTS_READY) {
+      // Patient returning from lab - doctor reviews results
+      updateAppointment(appointment.id, {
+        status: APPOINTMENT_STATUS.WITH_DOCTOR,
+        labReviewedAt: new Date().toISOString()
+      });
     }
     setSelectedPatient({ ...appointment, status: APPOINTMENT_STATUS.WITH_DOCTOR });
   };
@@ -303,6 +314,7 @@ function Consultation() {
                 const patient = getPatient(appointment.patientId);
                 const triage = getTriage(appointment.id);
                 const isInQueue = appointment.status === APPOINTMENT_STATUS.IN_QUEUE;
+                const hasLabResults = appointment.status === APPOINTMENT_STATUS.LAB_RESULTS_READY;
                 
                 return (
                   <div
@@ -311,29 +323,38 @@ function Consultation() {
                     className={`p-4 cursor-pointer transition-colors ${
                       selectedPatient?.id === appointment.id 
                         ? 'bg-purple-50 border-l-4 border-purple-500' 
-                        : 'hover:bg-slate-50'
+                        : hasLabResults 
+                          ? 'bg-emerald-50 border-l-4 border-emerald-500 hover:bg-emerald-100'
+                          : 'hover:bg-slate-50'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        isInQueue ? 'bg-yellow-100' : 'bg-purple-100'
+                        hasLabResults ? 'bg-emerald-100' : isInQueue ? 'bg-yellow-100' : 'bg-purple-100'
                       }`}>
-                        <span className={`font-semibold ${isInQueue ? 'text-yellow-600' : 'text-purple-600'}`}>
+                        <span className={`font-semibold ${
+                          hasLabResults ? 'text-emerald-600' : isInQueue ? 'text-yellow-600' : 'text-purple-600'
+                        }`}>
                           {patient?.name?.charAt(0)}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-medium text-slate-800 truncate">{patient?.name}</h3>
+                          {hasLabResults && (
+                            <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">
+                              🔬 Lab Results Ready
+                            </span>
+                          )}
                           {isInQueue && (
                             <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">In Queue</span>
                           )}
-                          {!isInQueue && (
+                          {!isInQueue && !hasLabResults && (
                             <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">With Doctor</span>
                           )}
                         </div>
-                        {triage?.chiefComplaint && (
-                          <p className="text-sm text-slate-500 truncate">{triage.chiefComplaint}</p>
+                        {patient?.allergies && (
+                          <p className="text-xs text-red-600 truncate">⚠️ Allergies: {patient.allergies}</p>
                         )}
                       </div>
                     </div>
@@ -365,13 +386,40 @@ function Consultation() {
                     <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-lg">
                       {patient?.name?.charAt(0)}
                     </div>
-                    <div>
-                      <h2 className="font-semibold text-slate-800">{patient?.name}</h2>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h2 className="font-semibold text-slate-800">{patient?.name}</h2>
+                        <Link to={`/patients/${patient?.id}`} className="text-xs text-purple-600 hover:underline">
+                          View Full Profile →
+                        </Link>
+                      </div>
                       <p className="text-sm text-slate-500">
                         {patient?.gender === 'M' ? 'Male' : 'Female'} • DOB: {formatDate(patient?.dob)}
+                        {patient?.bloodType && ` • Blood: ${patient.bloodType}`}
                       </p>
                     </div>
                   </div>
+                  
+                  {/* Allergies Alert */}
+                  {patient?.allergies && (
+                    <div className="mt-3 p-2 bg-red-100 border border-red-300 rounded-lg flex items-start gap-2">
+                      <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div>
+                        <p className="text-xs font-semibold text-red-700">ALLERGIES</p>
+                        <p className="text-sm text-red-800">{patient.allergies}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Medical History */}
+                  {patient?.medicalHistory && (
+                    <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-xs font-semibold text-amber-700">Medical History</p>
+                      <p className="text-sm text-amber-800">{patient.medicalHistory}</p>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Vitals Section - Taken by Nurse during Triage */}
@@ -409,14 +457,46 @@ function Consultation() {
                         <p className="font-bold text-slate-800">{triage.bmi || '-'}</p>
                       </div>
                     </div>
-                    {triage.chiefComplaint && (
-                      <div className="mt-3 p-2 bg-amber-50 rounded-lg">
-                        <p className="text-xs text-amber-600 font-medium">Chief Complaint (from Triage):</p>
-                        <p className="text-sm text-slate-700">{triage.chiefComplaint}</p>
+                    {triage.notes && (
+                      <div className="mt-3 p-2 bg-slate-100 rounded-lg">
+                        <p className="text-xs text-slate-500 font-medium">Nurse Notes:</p>
+                        <p className="text-sm text-slate-700">{triage.notes}</p>
                       </div>
                     )}
                   </div>
                 )}
+                
+                {/* Lab Results Section - Show when patient returns from lab */}
+                {(() => {
+                  const labOrder = labOrders.find(l => l.appointmentId === selectedPatient.id);
+                  if (labOrder && labOrder.status === 'completed') {
+                    return (
+                      <div className="p-4 bg-emerald-50 border-b border-emerald-100">
+                        <h3 className="text-sm font-semibold text-emerald-800 mb-3 flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Lab Results Ready for Review
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {labOrder.tests.map(test => {
+                            const result = labOrder.results?.[test.code];
+                            return (
+                              <div key={test.code} className="bg-white p-2 rounded-lg">
+                                <p className="text-xs text-slate-500">{test.name}</p>
+                                <p className="font-bold text-emerald-700">{result?.value || 'N/A'}</p>
+                                {result?.notes && (
+                                  <p className="text-xs text-slate-500">{result.notes}</p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
                 
                 <div className="p-4 space-y-5 max-h-[500px] overflow-y-auto">
                   {/* SECTION 1: Symptoms & History */}

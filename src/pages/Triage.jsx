@@ -37,8 +37,7 @@ function Triage() {
     weight: '',
     height: '',
     painLevel: '',
-    chiefComplaint: '',
-    notes: '',
+    notes: '',  // Nurse observations only (symptoms collected by doctor)
     urgency: 'normal',
     serviceType: 'general-consultation'
   });
@@ -157,7 +156,6 @@ function Triage() {
         weight: '',
         height: '',
         painLevel: '',
-        chiefComplaint: '',
         notes: '',
         urgency: 'normal',
         serviceType: 'general-consultation'
@@ -399,18 +397,6 @@ function Triage() {
                     />
                   </div>
                 </div>
-              </div>
-              
-              {/* Chief Complaint */}
-              <div className="input-group">
-                <label className="label text-xs">Chief Complaint</label>
-                <textarea
-                  name="chiefComplaint"
-                  value={triageForm.chiefComplaint}
-                  onChange={handleFormChange}
-                  className="input min-h-[80px]"
-                  placeholder="Brief description of main symptoms..."
-                />
               </div>
               
               {/* Service & Urgency */}
