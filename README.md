@@ -2,16 +2,16 @@
 
 # 🏥 ClinicCare Lite
 
-### Offline-First Clinic Management Application
+### Offline-First Clinic Management System (EMR Lite)
 
 [![React](https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-**A comprehensive, MVP-ready clinic management solution for patient records, appointments, and inventory tracking.**
+**A real-world clinic management application following industry-standard EMR workflows used in hospitals across Nigeria, Kenya, Ghana, US, UK, and worldwide.**
 
-[🚀 Live Demo](#-deployment) • [📖 Documentation](#-key-functionalities) • [🛠️ Installation](#-quick-start) • [📸 Screenshots](#-screenshots)
+[🚀 Live Demo](https://cliniccare-lite.vercel.app) • [📖 Documentation](#-complete-clinic-workflow) • [🛠️ Installation](#-quick-start) • [👤 Author](https://github.com/Sharon-DA)
 
 ---
 
@@ -20,166 +20,216 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
-- [Target Users](#-target-users)
-- [Key Functionalities](#-key-functionalities)
-- [Usage Scenarios](#-usage-scenarios)
+- [System Architecture](#-system-architecture)
+- [Complete Clinic Workflow](#-complete-clinic-workflow)
+- [User Roles](#-user-roles--dashboards)
+- [Key Features](#-key-features)
 - [Tech Stack](#-technology-stack)
 - [Quick Start](#-quick-start)
 - [Project Structure](#-project-structure)
-- [Sample Data](#-sample-data)
 - [Deployment](#-deployment)
-- [Screenshots](#-screenshots)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Author](#-author)
 
 ---
 
 ## 🌟 Overview
 
-**ClinicCare Lite** is an **offline-first, React-based clinic management application** designed to improve patient care, streamline clinic operations, and optimize inventory management in healthcare facilities. It integrates **patient records, appointment scheduling, and inventory tracking** into a single, user-friendly interface.
+**ClinicCare Lite** is the digital backbone of how a clinic operates. It replaces paper forms and organizes every step of the patient journey — from scheduling an appointment to generating the final visit summary.
+
+This application follows the **exact same workflow** used in professional EMR systems like:
+- OpenMRS
+- Helium Health
+- ClinifyEMR
+- AthenaHealth EMR
+- SmartClinic
 
 ### Why ClinicCare Lite?
 
-| Challenge | Solution |
-|-----------|----------|
-| 📁 Fragmented paper records | Centralized digital patient management |
-| 💊 Stockouts & expired medicines | Real-time inventory alerts |
-| 📅 Appointment chaos | Visual day-view scheduling with queue |
+| Real-World Problem | Our Solution |
+|--------------------|--------------|
+| 📁 Paper forms everywhere | Centralized digital patient records |
+| 💊 Medicine stockouts & expiry | Real-time inventory alerts |
+| 📅 Crowded waiting rooms | Digital queue management |
+| 🏥 No patient history access | Complete visit summaries |
 | 🌐 Unreliable internet | Fully offline-first architecture |
-| 📊 No visibility into operations | Built-in analytics dashboard |
-
-The app is **MVP-ready**, fully functional, and deployable without a backend, using **localStorage/IndexedDB** for offline data persistence. It is designed to address real-world pain points in healthcare settings, including **fragmented record-keeping, stockouts, and appointment inefficiencies**.
+| 📊 No operational insights | Built-in analytics dashboard |
 
 ---
 
-## 👥 Target Users
+## 🏗️ System Architecture
 
-### Primary Users
-
-| Role | Responsibilities |
-|------|------------------|
-| **👨‍⚕️ Clinicians / Healthcare Providers** | Manage patient profiles and visit histories, record immunizations and treatment notes, view daily schedules |
-| **📦 Inventory / Clinic Managers** | Track medicines, vaccines, and supplies, flag low-stock or near-expiry items, export reports for auditing |
-
-### Secondary Users
-
-| Role | Responsibilities |
-|------|------------------|
-| **👔 Admins / Supervisors** | Configure system thresholds, view high-level analytics dashboards |
-| **🏃 Patients** | Receive better-organized healthcare services (no direct login required) |
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          CLINICCARE LITE ARCHITECTURE                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│   │ RECEPTION   │    │   TRIAGE    │    │   DOCTOR    │    │  PHARMACY   │  │
+│   │  DASHBOARD  │───▶│  DASHBOARD  │───▶│  DASHBOARD  │───▶│  DASHBOARD  │  │
+│   └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘  │
+│         │                  │                  │                  │           │
+│         │                  │                  │                  │           │
+│         ▼                  ▼                  ▼                  ▼           │
+│   ┌───────────────────────────────────────────────────────────────────┐     │
+│   │                        LOCAL STORAGE / INDEXEDDB                   │     │
+│   │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │     │
+│   │  │ Patients │ │Appoint-  │ │ Triage   │ │Consulta- │ │Prescrip- │ │     │
+│   │  │          │ │ments     │ │ Records  │ │tions     │ │tions     │ │     │
+│   │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘ │     │
+│   │  ┌──────────┐ ┌──────────┐ ┌──────────┐                          │     │
+│   │  │Inventory │ │ Queue    │ │Lab Orders│                          │     │
+│   │  └──────────┘ └──────────┘ └──────────┘                          │     │
+│   └───────────────────────────────────────────────────────────────────┘     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## ⚡ Key Functionalities
+## 🔄 Complete Clinic Workflow
 
-### A. 🔐 Authentication & Roles
+This is the **standard, universal flow** used in hospitals and clinics worldwide:
 
-- Signup/Login system (client-side using localStorage)
-- Role-based interface: **Clinician** vs **Inventory Manager**
-- Different menus and access permissions for each role
-- Persistent sessions across browser reloads
-
-### B. 👥 Patient & Health Records (HMR Lite)
-
-| Feature | Description |
-|---------|-------------|
-| Patient Profiles | Create, edit, delete (name, DOB, gender, contact, ID) |
-| Visit Records | Date, reason, clinician notes, immunizations |
-| Immunizations | Controlled vocabulary with age-appropriate suggestions |
-| Search & Filter | Find patients by name, ID, or gender |
-| Export | Download records as **JSON** or **CSV** |
-
-### C. 📅 Appointment Booking & Queue Management
-
-| Feature | Description |
-|---------|-------------|
-| Scheduling | Book appointments with date/time and clinician |
-| Day View | Visual calendar with horizontal date navigation |
-| Status Workflow | Scheduled → Checked In → In Progress → Completed |
-| Walk-ins | Add unscheduled patients to today's queue |
-| No-Show Tracking | Mark and track missed appointments |
-| Export | Attendance and no-show reports as CSV |
-
-### D. 📦 Inventory & Supply Management
-
-| Feature | Description |
-|---------|-------------|
-| Item Management | Add, edit, delete (name, SKU, batch, quantity, unit, expiry) |
-| Transactions | Track stock intake and outtake with logs |
-| Smart Alerts | ⚠️ Low stock, ⏰ Near-expiry, ❌ Expired |
-| Import/Export | CSV and JSON support for bulk operations |
-| Categories | Vaccines, Medications, Supplies, Equipment |
-
-### E. 📊 Analytics & Reports
-
-| Chart | Data |
-|-------|------|
-| Bar Chart | Daily appointments (total, attended, no-show) |
-| Pie Chart | Appointment status distribution |
-| Pie Chart | Inventory health (healthy, low, expired) |
-| Line Chart | Stock trends (in/out over time) |
-| Table | Inventory breakdown by category |
-
-**Filters:** Date range (7/14/30/90 days), Clinician
-
-### F. 🔌 Offline-First / Data Persistence
-
-```javascript
-// Custom hook for all data operations
-const { data, create, update, remove, exportData, importData } = useLocalDB('key');
+### Step 1: Patient Registration
+```
+📝 Reception collects:
+   • Full name, gender, date of birth
+   • Phone number, address
+   • Next of kin, allergies
+   • Basic medical history
+   
+   → System creates patient profile with unique ID
 ```
 
-- All data stored in **localStorage/IndexedDB**
-- Custom `useLocalDB(key)` hook for CRUD operations
-- Cross-tab synchronization via storage events
-- Export/Import for backup and restore
-- App fully functional **without internet**
+### Step 2: Appointment Scheduling
+```
+📅 Book appointment based on:
+   • Chosen clinic day
+   • Doctor availability
+   • Service type (consultation, follow-up, immunization, ANC)
+   
+   → System shows available time slots
+```
 
-### G. ⚙️ Settings & Backups
+### Step 3: Check-In at Clinic
+```
+✅ When patient arrives:
+   • Reception verifies appointment
+   • Marks status: CHECKED-IN
+   • Patient enters triage queue
+   
+   → Triage nurse is notified
+```
 
-| Setting | Description |
-|---------|-------------|
-| Low Stock Threshold | Alert when quantity falls below this |
-| Near-Expiry Days | Warning days before expiration |
-| Clinic Info | Name, contact, address |
-| Full Backup | Download all data as JSON |
-| Restore | Upload previous backup to restore |
-| Reset | Clear all data and start fresh |
+### Step 4: Triage / Vital Signs
+```
+💉 Triage Nurse collects:
+   • Temperature, Blood pressure
+   • Pulse, Oxygen saturation
+   • Weight, Height, BMI
+   • Pain score (0-10)
+   
+   → Status: TRIAGED → IN QUEUE
+```
+
+### Step 5: Queue Management
+```
+📋 System displays real-time queue:
+   
+   Patient A — WITH DOCTOR
+   Patient B — NEXT
+   Patient C — WAITING
+   Patient D — IN TRIAGE
+   
+   → Solves crowding and confusion
+```
+
+### Step 6: Doctor Consultation
+```
+👨‍⚕️ Doctor records:
+   
+   SYMPTOMS: fever, cough, headache
+   EXAMINATION: findings, assessment
+   DIAGNOSIS: Malaria (B54), UTI (N39.0)
+   MEDICATIONS: Paracetamol, Amoxicillin
+   LAB TESTS: CBC, Malaria Parasite
+   
+   → Everything stored in medical record
+```
+
+### Step 7: Lab Tests (if ordered)
+```
+🔬 Lab Workflow:
+   • Order appears on Lab page
+   • Lab technician runs tests
+   • Results uploaded to system
+   • Doctor gets notified
+   
+   → Status: LAB → RESULTS READY
+```
+
+### Step 8: Pharmacy Dispensing
+```
+💊 Pharmacist sees:
+   • Patient name
+   • Prescription from doctor
+   • Dosage instructions
+   
+   → Marks as: ✔ DISPENSED
+```
+
+### Step 9: Visit Summary
+```
+📋 Complete record compiled:
+   • Vitals from triage
+   • Consultation notes
+   • Diagnosis
+   • Lab results
+   • Medications dispensed
+   
+   → Status: COMPLETED
+```
 
 ---
 
-## 📖 Usage Scenarios
+## 👥 User Roles & Dashboards
 
-### Scenario 1: Clinician Adding a Patient Visit
+| User Role | Dashboard | Primary Functions |
+|-----------|-----------|-------------------|
+| **Receptionist** | Check-In, Appointments | Register patients, schedule appointments, check-in |
+| **Triage Nurse** | Triage | Record vital signs, assess urgency |
+| **Doctor/Clinician** | Queue, Consultation | Diagnosis, prescriptions, lab orders |
+| **Pharmacist** | Pharmacy | View prescriptions, dispense medications |
+| **Lab Technician** | Lab | View orders, upload test results |
+| **Admin/Manager** | Analytics, Settings | Reports, staff monitoring, system config |
 
-```
-1. Log in as a clinician
-2. Navigate to Patients → Search or create patient profile
-3. Click on patient → Add Visit
-4. Enter visit details, notes, and immunizations
-5. Save → Optionally export patient record
-```
+---
 
-### Scenario 2: Inventory Manager Tracking Stock
+## ⚡ Key Features
 
-```
-1. Log in as inventory manager
-2. Go to Inventory → Add Item (new vaccine batch)
-3. Click transaction icon → Record intake/outtake
-4. Review dashboard for low-stock alerts
-5. Export inventory report for audit
-```
+### 🏥 Clinical Workflow
+- ✅ **Patient Registration** — Complete demographic capture
+- ✅ **Appointment Scheduling** — Calendar-based booking
+- ✅ **Check-In System** — Arrival verification
+- ✅ **Triage Station** — Vital signs recording
+- ✅ **Queue Management** — Real-time patient queue
+- ✅ **Consultation Module** — SOAP notes, ICD-10 diagnosis
+- ✅ **Lab Integration** — Order tests, record results
+- ✅ **Pharmacy Module** — Prescription dispensing
+- ✅ **Visit Summary** — Complete visit documentation
 
-### Scenario 3: Daily Appointment Management
+### 📊 Management Features
+- ✅ **Inventory Tracking** — Stock levels, expiry alerts
+- ✅ **Analytics Dashboard** — Appointment trends, no-show rates
+- ✅ **Role-Based Access** — Clinician, Inventory Manager, Admin
+- ✅ **Data Export** — CSV/JSON for all records
+- ✅ **Backup/Restore** — Full data backup functionality
 
-```
-1. Open Appointments → Select today's date
-2. View scheduled patients in day view
-3. Click "Check In" when patient arrives
-4. Click "Start" → "Complete" for workflow
-5. Mark no-shows at end of day
-6. Export attendance report
-```
+### 🔧 Technical Features
+- ✅ **Offline-First** — Works without internet
+- ✅ **Local Storage** — Data persists in browser
+- ✅ **Responsive Design** — Mobile, tablet, desktop
+- ✅ **Accessible UI** — ARIA labels, keyboard navigation
 
 ---
 
@@ -188,24 +238,19 @@ const { data, create, update, remove, exportData, importData } = useLocalDB('key
 | Category | Technology |
 |----------|------------|
 | **Frontend** | React 18 (Functional Components + Hooks) |
-| **Build Tool** | Vite 5 |
-| **Routing** | React Router 6 |
-| **Styling** | Tailwind CSS 3 (Mobile-First) |
+| **Routing** | React Router v6 |
+| **Styling** | Tailwind CSS 3.3 |
 | **Charts** | Recharts |
-| **Date Handling** | date-fns |
-| **CSV Parsing** | PapaParse |
-| **Data Persistence** | localStorage + Custom Hooks |
-| **Testing** | Vitest + React Testing Library |
-| **Icons** | Heroicons (SVG) |
+| **Build Tool** | Vite 5.0 |
+| **Data Storage** | localStorage / IndexedDB |
+| **Deployment** | Vercel |
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
-- **Node.js** 18+ ([Download](https://nodejs.org/))
-- **npm** or **yarn**
+- Node.js 18+ and npm
 
 ### Installation
 
@@ -213,7 +258,7 @@ const { data, create, update, remove, exportData, importData } = useLocalDB('key
 # Clone the repository
 git clone https://github.com/Sharon-DA/cliniccare-lite.git
 
-# Navigate to project directory
+# Navigate to project
 cd cliniccare-lite
 
 # Install dependencies
@@ -223,254 +268,160 @@ npm install
 npm run dev
 ```
 
-### Open in Browser
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-```
-http://localhost:5173
-```
-
-### Build for Production
-
-```bash
-npm run build
-npm run preview
-```
+### Demo Credentials
+Create a new account with any username/password, or use the app to explore all features.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-ClinicCare-Lite/
+cliniccare-lite/
 ├── public/
-│   └── favicon.svg                    # App icon
+│   └── favicon.svg
 ├── src/
 │   ├── components/
-│   │   ├── common/                    # Reusable UI components
-│   │   │   ├── Badge.jsx              # Status badges
-│   │   │   ├── ConfirmDialog.jsx      # Confirmation modals
-│   │   │   ├── EmptyState.jsx         # Empty state displays
-│   │   │   ├── FileUpload.jsx         # File upload with drag-drop
-│   │   │   ├── LoadingSpinner.jsx     # Loading indicator
-│   │   │   ├── Modal.jsx              # Modal dialog
-│   │   │   ├── SearchInput.jsx        # Search with clear button
-│   │   │   └── ToastContainer.jsx     # Notification toasts
-│   │   ├── layout/
-│   │   │   ├── Header.jsx             # Top header bar
-│   │   │   └── Sidebar.jsx            # Navigation sidebar
-│   │   ├── patients/
-│   │   │   ├── PatientForm.jsx        # Create/edit patient
-│   │   │   └── VisitForm.jsx          # Add/edit visits
-│   │   ├── inventory/
-│   │   │   ├── InventoryForm.jsx      # Create/edit items
-│   │   │   └── TransactionForm.jsx    # Stock in/out
-│   │   └── appointments/
-│   │       └── AppointmentForm.jsx    # Schedule appointments
+│   │   ├── common/          # Reusable UI components
+│   │   │   ├── Badge.jsx
+│   │   │   ├── Modal.jsx
+│   │   │   ├── SearchInput.jsx
+│   │   │   └── ToastContainer.jsx
+│   │   ├── layout/          # App layout
+│   │   │   ├── Header.jsx
+│   │   │   └── Sidebar.jsx
+│   │   ├── patients/        # Patient-related components
+│   │   ├── inventory/       # Inventory components
+│   │   └── appointments/    # Appointment components
 │   ├── context/
-│   │   ├── AuthContext.jsx            # Authentication state
-│   │   └── NotificationContext.jsx    # Toast notifications
+│   │   ├── AuthContext.jsx      # Authentication state
+│   │   └── NotificationContext.jsx
 │   ├── hooks/
-│   │   ├── useLocalDB.js              # Offline data persistence
-│   │   ├── useFormValidation.js       # Form validation
-│   │   └── __tests__/
-│   │       └── useLocalDB.test.js     # Unit tests
+│   │   ├── useLocalDB.js        # CRUD operations for localStorage
+│   │   └── useFormValidation.js # Form validation logic
 │   ├── pages/
-│   │   ├── Login.jsx                  # Login page
-│   │   ├── Signup.jsx                 # Registration page
-│   │   ├── Dashboard.jsx              # Main dashboard
-│   │   ├── Patients.jsx               # Patient list
-│   │   ├── PatientDetail.jsx          # Patient details & visits
-│   │   ├── Inventory.jsx              # Inventory management
-│   │   ├── Appointments.jsx           # Appointment scheduling
-│   │   ├── Analytics.jsx              # Charts & reports
-│   │   └── Settings.jsx               # App configuration
+│   │   ├── Dashboard.jsx        # Main dashboard
+│   │   ├── Patients.jsx         # Patient management
+│   │   ├── PatientDetail.jsx    # Individual patient view
+│   │   ├── Appointments.jsx     # Appointment scheduling
+│   │   ├── CheckIn.jsx          # Patient check-in
+│   │   ├── Triage.jsx           # Vital signs recording
+│   │   ├── Queue.jsx            # Queue management
+│   │   ├── Consultation.jsx     # Doctor consultation
+│   │   ├── Lab.jsx              # Lab test management
+│   │   ├── Pharmacy.jsx         # Medication dispensing
+│   │   ├── Inventory.jsx        # Stock management
+│   │   ├── Analytics.jsx        # Reports & charts
+│   │   ├── Settings.jsx         # App configuration
+│   │   └── VisitSummary.jsx     # Complete visit record
 │   ├── utils/
-│   │   ├── constants.js               # App constants & vocabularies
-│   │   ├── helpers.js                 # Utility functions
-│   │   └── exportUtils.js             # CSV/JSON export
+│   │   ├── constants.js         # App constants & enums
+│   │   ├── helpers.js           # Utility functions
+│   │   └── exportUtils.js       # CSV/JSON export
 │   ├── data/
-│   │   └── seedData.js                # Sample data
-│   ├── test/
-│   │   └── setup.js                   # Test configuration
-│   ├── App.jsx                        # Main app component
-│   ├── index.jsx                      # Entry point
-│   └── index.css                      # Tailwind styles
-├── .gitignore                         # Git ignore rules
-├── index.html                         # HTML template
-├── LICENSE                            # MIT License
-├── package.json                       # Dependencies
-├── postcss.config.js                  # PostCSS config
-├── sample-backup.json                 # Demo data backup
-├── tailwind.config.js                 # Tailwind config
-├── vite.config.js                     # Vite config
-└── README.md                          # Documentation
+│   │   └── seedData.js          # Sample data for testing
+│   ├── App.jsx                  # Root component with routing
+│   ├── index.jsx                # Entry point
+│   └── index.css                # Global styles
+├── package.json
+├── vite.config.js
+├── tailwind.config.js
+└── README.md
 ```
-
----
-
-## 📦 Sample Data
-
-Load the included sample data to explore all features:
-
-### Method 1: Via UI
-1. Go to **Settings** → **Restore from Backup**
-2. Select `sample-backup.json`
-3. Click **Restore Data**
-
-### Method 2: Programmatically
-```javascript
-import { loadSeedData } from './src/data/seedData';
-loadSeedData(true); // Force overwrite existing data
-```
-
-### Sample Data Includes
-
-| Type | Count | Examples |
-|------|-------|----------|
-| **Patients** | 5 | Grace Adeyemi, Chukwuemeka Okonkwo, Fatima Ibrahim |
-| **Inventory** | 5 | Measles Vaccine, Paracetamol, Syringes, ORS |
-| **Appointments** | 5 | Scheduled, Completed, No-show examples |
 
 ---
 
 ## 🌐 Deployment
 
-### Option 1: Vercel (Recommended)
+### Live Application
+**🔗 https://cliniccare-lite.vercel.app**
 
-```bash
-# Install Vercel CLI
-npm i -g vercel
+### Deploy Your Own
 
-# Deploy
-vercel
-```
+#### Vercel (Recommended)
+1. Push code to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Deploy automatically
 
-Or connect your GitHub repo at [vercel.com](https://vercel.com) for auto-deploy.
+#### Netlify
+1. Push code to GitHub
+2. Import in [Netlify](https://netlify.com)
+3. Build command: `npm run build`
+4. Publish directory: `dist`
 
-### Option 2: Netlify
+---
 
-```bash
-# Build the app
-npm run build
+## 📊 Data Models
 
-# Deploy via Netlify CLI or drag-drop dist/ folder
-```
-
-### Option 3: GitHub Pages
-
-1. Update `vite.config.js`:
+### Patient
 ```javascript
-export default defineConfig({
-  base: '/cliniccare-lite/',
-  // ...
-});
+{
+  id: "p_001",
+  name: "Grace Adeyemi",
+  dob: "1986-03-10",
+  gender: "F",
+  contact: "08012345678",
+  address: "123 Main St, Lagos",
+  visits: [...]
+}
 ```
 
-2. Build and deploy:
-```bash
-npm run build
-# Deploy dist/ to gh-pages branch
+### Appointment
+```javascript
+{
+  id: "a_001",
+  patientId: "p_001",
+  datetime: "2025-11-30T10:00",
+  clinician: "Dr. Okonkwo",
+  status: "scheduled" // → checked_in → in_queue → with_doctor → completed
+}
 ```
 
-### Live Demo
-
-🔗 **[View Live Demo](https://cliniccare-lite.vercel.app)** *(Deploy to get your URL)*
-
----
-
-## 📸 Screenshots
-
-<details>
-<summary>Click to view screenshots</summary>
-
-### Login Page
-![Login](screenshots/login.png)
-
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Patients List
-![Patients](screenshots/patients.png)
-
-### Inventory Management
-![Inventory](screenshots/inventory.png)
-
-### Appointments Day View
-![Appointments](screenshots/appointments.png)
-
-### Analytics Dashboard
-![Analytics](screenshots/analytics.png)
-
-</details>
-
----
-
-## 🧪 Testing
-
-```bash
-# Run tests
-npm run test
-
-# Run with coverage
-npm run test:coverage
+### Consultation
+```javascript
+{
+  id: "cons_001",
+  appointmentId: "a_001",
+  complaint: "Fever and headache for 3 days",
+  diagnosis: [{ code: "B54", name: "Malaria" }],
+  medications: [{ name: "Artemether-Lumefantrine", dosage: "..." }],
+  labTests: [{ code: "MP", name: "Malaria Parasite Test" }]
+}
 ```
 
 ---
 
-## 🔒 Security Notes
+## 🎯 Status Flow
 
-> ⚠️ **This is a demo/portfolio application.** For production use:
-
-- [ ] Implement proper backend authentication
-- [ ] Hash passwords (never store plain text)
-- [ ] Use HTTPS in production
-- [ ] Implement session tokens
-- [ ] Add input sanitization
-- [ ] Enable CSP headers
+```
+SCHEDULED → CHECKED_IN → IN_QUEUE → WITH_DOCTOR → LAB/PHARMACY → COMPLETED
+    ↓                                                    ↓
+ NO_SHOW                                            CANCELLED
+```
 
 ---
 
-## 🤝 Contributing
+## 👤 Author
 
-Contributions are welcome! Please follow these steps:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
+**Sharon**
+- GitHub: [@Sharon-DA](https://github.com/Sharon-DA)
+- Project: [ClinicCare Lite](https://github.com/Sharon-DA/cliniccare-lite)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👩‍💻 Author
-
-**Sharon A**
-
-- GitHub: [@Sharon-DA](https://github.com/Sharon-DA)
-- Profile: [github.com/Sharon-DA](https://github.com/Sharon-DA)
-
----
-
-## 🙏 Acknowledgments
-
-- [React](https://reactjs.org/) - UI Library
-- [Tailwind CSS](https://tailwindcss.com/) - Styling
-- [Recharts](https://recharts.org/) - Charts
-- [Heroicons](https://heroicons.com/) - Icons
-- [date-fns](https://date-fns.org/) - Date utilities
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-**ClinicCare Lite** — Managing healthcare, one patient at a time. 💚
+### 🏥 Built for the eHealth Africa Cohort
 
-⭐ Star this repo if you found it helpful!
+**ClinicCare Lite** — A real-world clinic management solution
+
+*Offline-first • Role-based • Industry-standard workflow*
 
 </div>
