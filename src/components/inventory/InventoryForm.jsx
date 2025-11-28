@@ -227,3 +227,4 @@ function InventoryForm({ item, onSubmit, onCancel }) {
 
 export default InventoryForm;
 
+

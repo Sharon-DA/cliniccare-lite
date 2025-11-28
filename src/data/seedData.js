@@ -388,3 +388,4 @@ export function loadSeedData(force = false) {
 
 export default { seedPatients, seedInventory, seedAppointments, seedSettings, fullSeedBackup, loadSeedData };
 
+

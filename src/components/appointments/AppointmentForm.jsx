@@ -269,3 +269,4 @@ function AppointmentForm({ appointment, patients, defaultDate, isWalkIn = false,
 
 export default AppointmentForm;
 
+

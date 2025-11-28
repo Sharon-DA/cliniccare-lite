@@ -368,7 +368,7 @@ function Settings() {
           <p><strong>Type:</strong> Offline-first Progressive Web App</p>
           <p><strong>Storage:</strong> LocalStorage / IndexedDB</p>
           <p className="pt-2">
-            ClinicCare Lite is a portfolio-ready clinic management application 
+            ClinicCare Lite is a clinic management application 
             designed for offline-first operation. All data is stored locally 
             in your browser.
           </p>
@@ -439,4 +439,5 @@ function Settings() {
 }
 
 export default Settings;
+
 
