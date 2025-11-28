@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useLocalDB } from '../hooks/useLocalDB';
 import { useNotifications } from '../context/NotificationContext';
 import { 
@@ -58,20 +59,45 @@ function Consultation() {
   // Get triage data
   const getTriage = (appointmentId) => triageRecords.find(t => t.appointmentId === appointmentId);
   
-  // Patients currently with doctor
-  const patientsWithDoctor = useMemo(() => {
+  // Patients ready for consultation (in queue or with doctor)
+  const patientsForConsultation = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     return appointments
       .filter(apt => {
         const aptDate = apt.datetime?.split('T')[0] || apt.date;
-        return aptDate === today && apt.status === APPOINTMENT_STATUS.WITH_DOCTOR;
+        // Show patients who are in queue or already with doctor
+        return aptDate === today && 
+          (apt.status === APPOINTMENT_STATUS.WITH_DOCTOR || apt.status === APPOINTMENT_STATUS.IN_QUEUE);
       })
       .filter(apt => {
         const patient = getPatient(apt.patientId);
         return searchQuery === '' || 
           patient?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+      })
+      .sort((a, b) => {
+        // WITH_DOCTOR first, then IN_QUEUE
+        if (a.status === APPOINTMENT_STATUS.WITH_DOCTOR && b.status !== APPOINTMENT_STATUS.WITH_DOCTOR) return -1;
+        if (b.status === APPOINTMENT_STATUS.WITH_DOCTOR && a.status !== APPOINTMENT_STATUS.WITH_DOCTOR) return 1;
+        return 0;
       });
   }, [appointments, patients, searchQuery]);
+  
+  // When selecting a patient in queue, update their status to WITH_DOCTOR
+  const handleSelectPatient = (appointment) => {
+    if (appointment.status === APPOINTMENT_STATUS.IN_QUEUE) {
+      // Update to WITH_DOCTOR when starting consultation
+      updateAppointment(appointment.id, {
+        status: APPOINTMENT_STATUS.WITH_DOCTOR,
+        calledAt: new Date().toISOString()
+      });
+      // Mark queue item as called
+      const queueItem = queue.find(q => q.appointmentId === appointment.id);
+      if (queueItem) {
+        updateQueue(queueItem.id, { called: true, calledAt: new Date().toISOString() });
+      }
+    }
+    setSelectedPatient({ ...appointment, status: APPOINTMENT_STATUS.WITH_DOCTOR });
+  };
   
   // Handle form change
   const handleFormChange = (e) => {
@@ -254,7 +280,7 @@ function Consultation() {
         <div className="card lg:col-span-1">
           <div className="p-4 border-b border-slate-200">
             <h2 className="font-semibold text-slate-800 mb-3">
-              Current Patients ({patientsWithDoctor.length})
+              Ready for Consultation ({patientsForConsultation.length})
             </h2>
             <SearchInput
               value={searchQuery}
@@ -263,21 +289,25 @@ function Consultation() {
             />
           </div>
           
-          {patientsWithDoctor.length === 0 ? (
+          {patientsForConsultation.length === 0 ? (
             <div className="p-6 text-center text-slate-500">
-              <p>No patients currently with doctor</p>
-              <p className="text-sm text-slate-400 mt-1">Call patients from the queue</p>
+              <p>No patients ready for consultation</p>
+              <p className="text-sm text-slate-400 mt-1">Complete triage to add patients to queue</p>
+              <Link to="/triage" className="btn-outline mt-3 inline-block">
+                Go to Triage
+              </Link>
             </div>
           ) : (
             <div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
-              {patientsWithDoctor.map((appointment) => {
+              {patientsForConsultation.map((appointment) => {
                 const patient = getPatient(appointment.patientId);
                 const triage = getTriage(appointment.id);
+                const isInQueue = appointment.status === APPOINTMENT_STATUS.IN_QUEUE;
                 
                 return (
                   <div
                     key={appointment.id}
-                    onClick={() => setSelectedPatient(appointment)}
+                    onClick={() => handleSelectPatient(appointment)}
                     className={`p-4 cursor-pointer transition-colors ${
                       selectedPatient?.id === appointment.id 
                         ? 'bg-purple-50 border-l-4 border-purple-500' 
@@ -285,13 +315,23 @@ function Consultation() {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span className="font-semibold text-purple-600">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        isInQueue ? 'bg-yellow-100' : 'bg-purple-100'
+                      }`}>
+                        <span className={`font-semibold ${isInQueue ? 'text-yellow-600' : 'text-purple-600'}`}>
                           {patient?.name?.charAt(0)}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-slate-800 truncate">{patient?.name}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium text-slate-800 truncate">{patient?.name}</h3>
+                          {isInQueue && (
+                            <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">In Queue</span>
+                          )}
+                          {!isInQueue && (
+                            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">With Doctor</span>
+                          )}
+                        </div>
                         {triage?.chiefComplaint && (
                           <p className="text-sm text-slate-500 truncate">{triage.chiefComplaint}</p>
                         )}

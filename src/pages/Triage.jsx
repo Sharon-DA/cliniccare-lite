@@ -63,13 +63,21 @@ function Triage() {
       .sort((a, b) => new Date(a.checkedInAt) - new Date(b.checkedInAt));
   }, [appointments, patients, searchQuery]);
   
-  // Already triaged today
+  // Already triaged today (now in queue or further)
   const triagedToday = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     return appointments
       .filter(apt => {
         const aptDate = apt.datetime?.split('T')[0] || apt.date;
-        return aptDate === today && apt.status === APPOINTMENT_STATUS.TRIAGED;
+        const isTriaged = [
+          APPOINTMENT_STATUS.TRIAGED,
+          APPOINTMENT_STATUS.IN_QUEUE,
+          APPOINTMENT_STATUS.WITH_DOCTOR,
+          APPOINTMENT_STATUS.LAB,
+          APPOINTMENT_STATUS.PHARMACY,
+          APPOINTMENT_STATUS.COMPLETED
+        ].includes(apt.status);
+        return aptDate === today && isTriaged && apt.triagedAt;
       });
   }, [appointments]);
   
@@ -113,9 +121,9 @@ function Triage() {
       
       createTriage(triageData);
       
-      // Update appointment status
+      // Update appointment status to IN_QUEUE (ready for consultation)
       updateAppointment(selectedAppointment.id, {
-        status: APPOINTMENT_STATUS.TRIAGED,
+        status: APPOINTMENT_STATUS.IN_QUEUE,
         triagedAt: new Date().toISOString(),
         triageId: triageData.id
       });

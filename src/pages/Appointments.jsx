@@ -387,12 +387,20 @@ function Appointments() {
                       Triage →
                     </Link>
                   )}
-                  {(apt.status === APPOINTMENT_STATUS.TRIAGED || apt.status === 'in_queue') && (
+                  {apt.status === APPOINTMENT_STATUS.IN_QUEUE && (
                     <Link
                       to="/queue"
                       className="btn-primary py-1.5 px-3 text-sm"
                     >
                       View Queue →
+                    </Link>
+                  )}
+                  {apt.status === APPOINTMENT_STATUS.TRIAGED && (
+                    <Link
+                      to="/queue"
+                      className="btn-secondary py-1.5 px-3 text-sm"
+                    >
+                      Triaged - Add to Queue
                     </Link>
                   )}
                   {apt.status === APPOINTMENT_STATUS.WITH_DOCTOR && (
