@@ -319,72 +319,126 @@ function Consultation() {
             
             return (
               <>
+                {/* Patient Header */}
                 <div className="p-4 border-b border-slate-200 bg-purple-50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-lg">
-                        {patient?.name?.charAt(0)}
-                      </div>
-                      <div>
-                        <h2 className="font-semibold text-slate-800">{patient?.name}</h2>
-                        <p className="text-sm text-slate-500">
-                          {patient?.gender === 'M' ? 'Male' : 'Female'} • DOB: {formatDate(patient?.dob)}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold text-lg">
+                      {patient?.name?.charAt(0)}
                     </div>
-                    {triage && (
-                      <div className="text-right text-sm">
-                        <p className="text-slate-500">Vitals: {triage.bloodPressure}, {triage.temperature}°C</p>
-                        <p className="text-slate-500">Pulse: {triage.pulse} bpm</p>
-                      </div>
-                    )}
+                    <div>
+                      <h2 className="font-semibold text-slate-800">{patient?.name}</h2>
+                      <p className="text-sm text-slate-500">
+                        {patient?.gender === 'M' ? 'Male' : 'Female'} • DOB: {formatDate(patient?.dob)}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="p-4 space-y-5 max-h-[600px] overflow-y-auto">
-                  {/* Chief Complaint */}
-                  <div className="input-group">
-                    <label className="label">Chief Complaint</label>
-                    <textarea
-                      name="complaint"
-                      value={form.complaint}
-                      onChange={handleFormChange}
-                      className="input min-h-[80px]"
-                      placeholder="Patient's main complaint..."
-                    />
+                {/* Vitals Section - Taken by Nurse during Triage */}
+                {triage && (
+                  <div className="p-4 bg-teal-50 border-b border-teal-100">
+                    <h3 className="text-sm font-semibold text-teal-800 mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      Vitals (from Triage)
+                    </h3>
+                    <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                      <div className="bg-white p-2 rounded-lg text-center">
+                        <p className="text-xs text-slate-500">BP</p>
+                        <p className="font-bold text-slate-800">{triage.bloodPressure || '-'}</p>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg text-center">
+                        <p className="text-xs text-slate-500">Temp</p>
+                        <p className="font-bold text-slate-800">{triage.temperature || '-'}°C</p>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg text-center">
+                        <p className="text-xs text-slate-500">Pulse</p>
+                        <p className="font-bold text-slate-800">{triage.pulse || '-'} bpm</p>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg text-center">
+                        <p className="text-xs text-slate-500">O2 Sat</p>
+                        <p className="font-bold text-slate-800">{triage.oxygenSaturation || '-'}%</p>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg text-center">
+                        <p className="text-xs text-slate-500">Weight</p>
+                        <p className="font-bold text-slate-800">{triage.weight || '-'} kg</p>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg text-center">
+                        <p className="text-xs text-slate-500">BMI</p>
+                        <p className="font-bold text-slate-800">{triage.bmi || '-'}</p>
+                      </div>
+                    </div>
+                    {triage.chiefComplaint && (
+                      <div className="mt-3 p-2 bg-amber-50 rounded-lg">
+                        <p className="text-xs text-amber-600 font-medium">Chief Complaint (from Triage):</p>
+                        <p className="text-sm text-slate-700">{triage.chiefComplaint}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                <div className="p-4 space-y-5 max-h-[500px] overflow-y-auto">
+                  {/* SECTION 1: Symptoms & History */}
+                  <div className="bg-slate-50 p-4 rounded-xl">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                      Symptoms & History
+                    </h3>
+                    
+                    {/* Presenting Symptoms */}
+                    <div className="input-group mb-3">
+                      <label className="label text-sm">Presenting Symptoms / Complaint *</label>
+                      <textarea
+                        name="complaint"
+                        value={form.complaint}
+                        onChange={handleFormChange}
+                        className="input min-h-[80px]"
+                        placeholder="Describe what the patient is experiencing (e.g., fever for 3 days, headache, body pain...)"
+                      />
+                    </div>
+                    
+                    {/* History */}
+                    <div className="input-group">
+                      <label className="label text-sm">History of Present Illness</label>
+                      <textarea
+                        name="history"
+                        value={form.history}
+                        onChange={handleFormChange}
+                        className="input min-h-[60px]"
+                        placeholder="When did symptoms start? Any previous episodes? Current medications?"
+                      />
+                    </div>
                   </div>
                   
-                  {/* History */}
-                  <div className="input-group">
-                    <label className="label">History of Present Illness</label>
-                    <textarea
-                      name="history"
-                      value={form.history}
-                      onChange={handleFormChange}
-                      className="input min-h-[80px]"
-                      placeholder="Detailed history..."
-                    />
+                  {/* SECTION 2: Physical Examination */}
+                  <div className="bg-slate-50 p-4 rounded-xl">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                      Physical Examination
+                    </h3>
+                    <div className="input-group">
+                      <label className="label text-sm">Examination Findings</label>
+                      <textarea
+                        name="examination"
+                        value={form.examination}
+                        onChange={handleFormChange}
+                        className="input min-h-[80px]"
+                        placeholder="Physical examination findings (e.g., throat is red, abdomen tender...)"
+                      />
+                    </div>
                   </div>
                   
-                  {/* Examination */}
-                  <div className="input-group">
-                    <label className="label">Physical Examination</label>
-                    <textarea
-                      name="examination"
-                      value={form.examination}
-                      onChange={handleFormChange}
-                      className="input min-h-[80px]"
-                      placeholder="Examination findings..."
-                    />
-                  </div>
-                  
-                  {/* Diagnosis */}
-                  <div>
-                    <label className="label">Diagnosis *</label>
-                    <div className="flex flex-wrap gap-2 mb-2">
+                  {/* SECTION 3: Diagnosis */}
+                  <div className="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                    <h3 className="text-sm font-semibold text-amber-800 mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 bg-amber-200 text-amber-700 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                      Diagnosis *
+                    </h3>
+                    <div className="flex flex-wrap gap-2 mb-3">
                       {form.diagnosis.map(d => (
-                        <Badge key={d.code} variant="info" className="flex items-center gap-1">
-                          {d.name}
+                        <Badge key={d.code} variant="warning" className="flex items-center gap-1 bg-amber-100">
+                          {d.name} ({d.code})
                           <button
                             onClick={() => handleRemoveDiagnosis(d.code)}
                             className="ml-1 hover:text-red-500"
@@ -393,6 +447,9 @@ function Consultation() {
                           </button>
                         </Badge>
                       ))}
+                      {form.diagnosis.length === 0 && (
+                        <span className="text-sm text-amber-600">No diagnosis selected yet</span>
+                      )}
                     </div>
                     <select
                       onChange={(e) => {
@@ -400,70 +457,26 @@ function Consultation() {
                         if (diag) handleAddDiagnosis(diag);
                         e.target.value = '';
                       }}
-                      className="input"
+                      className="input bg-white"
                     >
-                      <option value="">Add diagnosis...</option>
+                      <option value="">+ Add diagnosis...</option>
                       {COMMON_DIAGNOSES.map(d => (
                         <option key={d.code} value={d.code}>{d.name} ({d.code})</option>
                       ))}
                     </select>
                   </div>
                   
-                  {/* Medications */}
-                  <div>
-                    <label className="label flex items-center justify-between">
-                      <span>Medications</span>
-                      <button
-                        onClick={() => setShowMedModal(true)}
-                        className="text-sm text-clinic-600 hover:text-clinic-700"
-                      >
-                        + Custom
-                      </button>
-                    </label>
-                    
-                    {form.medications.length > 0 && (
-                      <div className="mb-3 space-y-2">
-                        {form.medications.map(med => (
-                          <div key={med.id} className="flex items-center justify-between bg-green-50 p-3 rounded-lg">
-                            <div>
-                              <p className="font-medium text-slate-800">{med.name}</p>
-                              <p className="text-sm text-slate-500">
-                                {med.dosage} • {med.frequency} • {med.duration}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => handleRemoveMedication(med.id)}
-                              className="text-red-500 hover:text-red-600"
-                            >
-                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="flex flex-wrap gap-2">
-                      {COMMON_MEDICATIONS.slice(0, 5).map(med => (
-                        <button
-                          key={med.name}
-                          onClick={() => handleQuickMed(med)}
-                          className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 rounded-full text-slate-700"
-                        >
-                          + {med.name.split(' ')[0]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  {/* Lab Tests */}
-                  <div>
-                    <label className="label">Lab Tests</label>
-                    <div className="flex flex-wrap gap-2 mb-2">
+                  {/* SECTION 4: Lab Tests - Will appear on Lab Page */}
+                  <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-200">
+                    <h3 className="text-sm font-semibold text-indigo-800 mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 bg-indigo-200 text-indigo-700 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                      Lab Tests Prescribed
+                      <span className="text-xs font-normal text-indigo-600 ml-auto">→ Appears on Lab Page</span>
+                    </h3>
+                    <div className="flex flex-wrap gap-2 mb-3">
                       {form.labTests.map(test => (
-                        <Badge key={test.code} variant="warning" className="flex items-center gap-1">
-                          {test.name}
+                        <Badge key={test.code} variant="info" className="flex items-center gap-1 bg-indigo-100">
+                          {test.name} ({test.code})
                           <button
                             onClick={() => handleRemoveLabTest(test.code)}
                             className="ml-1 hover:text-red-500"
@@ -472,65 +485,134 @@ function Consultation() {
                           </button>
                         </Badge>
                       ))}
+                      {form.labTests.length === 0 && (
+                        <span className="text-sm text-indigo-600">No lab tests prescribed</span>
+                      )}
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {LAB_TESTS.slice(0, 6).map(test => (
+                      {LAB_TESTS.map(test => (
                         <button
                           key={test.code}
                           onClick={() => handleAddLabTest(test)}
-                          className={`px-3 py-1.5 text-sm rounded-full ${
+                          className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
                             form.labTests.find(t => t.code === test.code)
-                              ? 'bg-indigo-100 text-indigo-700'
-                              : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                              ? 'bg-indigo-500 text-white'
+                              : 'bg-white hover:bg-indigo-100 text-indigo-700 border border-indigo-200'
                           }`}
                         >
                           {test.code}
                         </button>
                       ))}
-                      <button
-                        onClick={() => setShowLabModal(true)}
-                        className="px-3 py-1.5 text-sm bg-slate-100 hover:bg-slate-200 rounded-full text-slate-700"
-                      >
-                        More...
-                      </button>
                     </div>
                   </div>
                   
-                  {/* Follow-up */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="input-group">
-                      <label className="label">Follow-up Date</label>
-                      <input
-                        type="date"
-                        name="followUpDate"
-                        value={form.followUpDate}
-                        onChange={handleFormChange}
-                        className="input"
-                      />
+                  {/* SECTION 5: Medications - Will appear on Pharmacy Page */}
+                  <div className="bg-green-50 p-4 rounded-xl border border-green-200">
+                    <h3 className="text-sm font-semibold text-green-800 mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 bg-green-200 text-green-700 rounded-full flex items-center justify-center text-xs font-bold">5</span>
+                      Medications Prescribed
+                      <span className="text-xs font-normal text-green-600 ml-auto">→ Appears on Pharmacy Page</span>
+                    </h3>
+                    
+                    {form.medications.length > 0 && (
+                      <div className="mb-3 space-y-2">
+                        {form.medications.map(med => (
+                          <div key={med.id} className="flex items-center justify-between bg-white p-3 rounded-lg border border-green-200">
+                            <div>
+                              <p className="font-medium text-slate-800">{med.name}</p>
+                              <p className="text-sm text-slate-500">
+                                {med.dosage} • {med.frequency} • {med.duration}
+                              </p>
+                              {med.instructions && (
+                                <p className="text-xs text-green-600 mt-1">📋 {med.instructions}</p>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => handleRemoveMedication(med.id)}
+                              className="text-red-500 hover:text-red-600 p-1"
+                            >
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {form.medications.length === 0 && (
+                      <p className="text-sm text-green-600 mb-3">No medications prescribed yet</p>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="text-xs text-slate-500 w-full mb-1">Quick add:</span>
+                      {COMMON_MEDICATIONS.slice(0, 6).map(med => (
+                        <button
+                          key={med.name}
+                          onClick={() => handleQuickMed(med)}
+                          className="px-3 py-1.5 text-sm bg-white hover:bg-green-100 rounded-full text-green-700 border border-green-200"
+                        >
+                          + {med.name.split(' ')[0]}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setShowMedModal(true)}
+                      className="btn-secondary w-full"
+                    >
+                      + Add Custom Medication
+                    </button>
+                  </div>
+                  
+                  {/* SECTION 6: Follow-up & Additional Info */}
+                  <div className="bg-slate-50 p-4 rounded-xl">
+                    <h3 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                      <span className="w-6 h-6 bg-slate-200 text-slate-600 rounded-full flex items-center justify-center text-xs font-bold">6</span>
+                      Follow-up & Notes
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 mb-3">
+                      <div className="input-group">
+                        <label className="label text-sm">Follow-up Date</label>
+                        <input
+                          type="date"
+                          name="followUpDate"
+                          value={form.followUpDate}
+                          onChange={handleFormChange}
+                          className="input"
+                        />
+                      </div>
+                      <div className="input-group">
+                        <label className="label text-sm">Referral (if any)</label>
+                        <input
+                          type="text"
+                          name="referral"
+                          value={form.referral}
+                          onChange={handleFormChange}
+                          className="input"
+                          placeholder="Specialist name..."
+                        />
+                      </div>
                     </div>
                     <div className="input-group">
-                      <label className="label">Referral (if any)</label>
-                      <input
-                        type="text"
-                        name="referral"
-                        value={form.referral}
+                      <label className="label text-sm">Additional Notes</label>
+                      <textarea
+                        name="notes"
+                        value={form.notes}
                         onChange={handleFormChange}
                         className="input"
-                        placeholder="Specialist name..."
+                        placeholder="Any other notes for this consultation..."
                       />
                     </div>
                   </div>
                   
-                  {/* Notes */}
-                  <div className="input-group">
-                    <label className="label">Additional Notes</label>
-                    <textarea
-                      name="notes"
-                      value={form.notes}
-                      onChange={handleFormChange}
-                      className="input"
-                      placeholder="Any other notes..."
-                    />
+                  {/* Summary before submit */}
+                  <div className="bg-slate-800 text-white p-4 rounded-xl">
+                    <h3 className="font-semibold mb-2">Consultation Summary</h3>
+                    <div className="text-sm space-y-1 text-slate-300">
+                      <p>• Diagnosis: {form.diagnosis.length > 0 ? form.diagnosis.map(d => d.name).join(', ') : 'None selected'}</p>
+                      <p>• Lab Tests: {form.labTests.length > 0 ? form.labTests.map(t => t.code).join(', ') : 'None'} {form.labTests.length > 0 && '→ Lab Page'}</p>
+                      <p>• Medications: {form.medications.length > 0 ? `${form.medications.length} prescribed` : 'None'} {form.medications.length > 0 && '→ Pharmacy Page'}</p>
+                    </div>
                   </div>
                   
                   {/* Actions */}
@@ -541,18 +623,36 @@ function Consultation() {
                     >
                       Cancel
                     </button>
-                    <button
-                      onClick={() => handleComplete('lab')}
-                      disabled={form.labTests.length === 0}
-                      className="btn-secondary flex-1 disabled:opacity-50"
-                    >
-                      Send to Lab
-                    </button>
+                    {form.labTests.length > 0 && (
+                      <button
+                        onClick={() => handleComplete('lab')}
+                        className="btn-secondary flex-1 bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                        Send to Lab First
+                      </button>
+                    )}
                     <button
                       onClick={() => handleComplete('pharmacy')}
                       className="btn-primary flex-1"
                     >
-                      {form.medications.length > 0 ? 'Send to Pharmacy' : 'Complete Visit'}
+                      {form.medications.length > 0 ? (
+                        <>
+                          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                          </svg>
+                          Complete & Send to Pharmacy
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Complete Consultation
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

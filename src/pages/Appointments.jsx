@@ -380,20 +380,44 @@ function Appointments() {
                     </>
                   )}
                   {apt.status === APPOINTMENT_STATUS.CHECKED_IN && (
-                    <button
-                      onClick={() => handleStatusChange(apt, APPOINTMENT_STATUS.IN_PROGRESS)}
+                    <Link
+                      to="/triage"
                       className="btn-primary py-1.5 px-3 text-sm"
                     >
-                      Start
-                    </button>
+                      Triage →
+                    </Link>
                   )}
-                  {apt.status === APPOINTMENT_STATUS.IN_PROGRESS && (
-                    <button
-                      onClick={() => handleStatusChange(apt, APPOINTMENT_STATUS.COMPLETED)}
+                  {(apt.status === APPOINTMENT_STATUS.TRIAGED || apt.status === 'in_queue') && (
+                    <Link
+                      to="/queue"
                       className="btn-primary py-1.5 px-3 text-sm"
                     >
-                      Complete
-                    </button>
+                      View Queue →
+                    </Link>
+                  )}
+                  {apt.status === APPOINTMENT_STATUS.WITH_DOCTOR && (
+                    <Link
+                      to="/consultation"
+                      className="btn-primary py-1.5 px-3 text-sm"
+                    >
+                      Continue Consultation →
+                    </Link>
+                  )}
+                  {apt.status === APPOINTMENT_STATUS.PHARMACY && (
+                    <Link
+                      to="/pharmacy"
+                      className="btn-secondary py-1.5 px-3 text-sm"
+                    >
+                      View Pharmacy →
+                    </Link>
+                  )}
+                  {apt.status === APPOINTMENT_STATUS.LAB && (
+                    <Link
+                      to="/lab"
+                      className="btn-secondary py-1.5 px-3 text-sm"
+                    >
+                      View Lab →
+                    </Link>
                   )}
                   {apt.status === APPOINTMENT_STATUS.COMPLETED && (
                     <Link
