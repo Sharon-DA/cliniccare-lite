@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useLocalDB } from '../hooks/useLocalDB';
 import { useNotifications } from '../context/NotificationContext';
 import { STORAGE_KEYS, APPOINTMENT_STATUS, APPOINTMENT_STATUS_LABELS, APPOINTMENT_STATUS_COLORS } from '../utils/constants';
@@ -393,6 +394,17 @@ function Appointments() {
                     >
                       Complete
                     </button>
+                  )}
+                  {apt.status === APPOINTMENT_STATUS.COMPLETED && (
+                    <Link
+                      to={`/visit/${apt.id}`}
+                      className="btn-secondary py-1.5 px-3 text-sm flex items-center gap-1"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Summary
+                    </Link>
                   )}
                   
                   {/* Edit/Delete */}
