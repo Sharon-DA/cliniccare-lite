@@ -28,6 +28,15 @@ import Appointments from './pages/Appointments';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 
+// Workflow Pages
+import CheckIn from './pages/CheckIn';
+import Triage from './pages/Triage';
+import Queue from './pages/Queue';
+import Consultation from './pages/Consultation';
+import Pharmacy from './pages/Pharmacy';
+import Lab from './pages/Lab';
+import VisitSummary from './pages/VisitSummary';
+
 /**
  * Protected Route Wrapper
  * Redirects to login if user is not authenticated
@@ -177,6 +186,63 @@ function App() {
         <ProtectedRoute>
           <MainLayout>
             <Settings />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      {/* Clinic Workflow Routes */}
+      <Route path="/check-in" element={
+        <ProtectedRoute allowedRoles={['clinician', 'admin']}>
+          <MainLayout>
+            <CheckIn />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/triage" element={
+        <ProtectedRoute allowedRoles={['clinician', 'admin']}>
+          <MainLayout>
+            <Triage />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/queue" element={
+        <ProtectedRoute allowedRoles={['clinician', 'admin']}>
+          <MainLayout>
+            <Queue />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/consultation" element={
+        <ProtectedRoute allowedRoles={['clinician', 'admin']}>
+          <MainLayout>
+            <Consultation />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/pharmacy" element={
+        <ProtectedRoute allowedRoles={['clinician', 'inventory_manager', 'admin']}>
+          <MainLayout>
+            <Pharmacy />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/lab" element={
+        <ProtectedRoute allowedRoles={['clinician', 'admin']}>
+          <MainLayout>
+            <Lab />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/visit/:appointmentId" element={
+        <ProtectedRoute allowedRoles={['clinician', 'admin']}>
+          <MainLayout>
+            <VisitSummary />
           </MainLayout>
         </ProtectedRoute>
       } />
